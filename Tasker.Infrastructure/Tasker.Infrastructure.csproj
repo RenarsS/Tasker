@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);SKEXP0020</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Dapper" Version="2.1.35" />
+      <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
+      <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.0.1-preview.1.24570.5" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.Chroma" Version="1.32.0-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.Milvus" Version="1.32.0-alpha" />
+      <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Tasker.Domain\Tasker.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

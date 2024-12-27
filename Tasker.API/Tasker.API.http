@@ -1,0 +1,11 @@
+@Tasker.API_HostAddress = http://localhost:5049
+
+GET {{Tasker.API_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{Tasker.API_HostAddress}}/todos/1
+Accept: application/json
+
+###

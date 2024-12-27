@@ -1,0 +1,47 @@
+﻿{
+  "task": {
+    "taskType": 2,
+    "title": "Repair leaking faucet in apartment 3B",
+    "description": "The faucet in the kitchen sink of apartment 3B is leaking. Please replace the washer and tighten the connections.",
+    "status": 1,
+    "createdBy": 2,
+    "createdAt": "2024-12-26T20:58:29.693Z",
+    "updatedAt": "2024-12-26T20:58:29.693Z",
+    "due": "2024-12-31T23:59:59.000Z"
+  },
+  "assignments": [
+    {
+      "user": 3,
+      "createdAt": "2024-12-26T20:58:29.693Z",
+      "updatedAt": "2024-12-26T20:58:29.693Z",
+      "status": 1
+    }
+  ],
+  "comments": [
+    {
+      "user": 2,
+      "content": "Task assigned to Matilde. Please keep me updated on the progress.",
+      "createdAt": "2024-12-26T20:58:29.693Z"
+    },
+    {
+      "user": 3,
+      "content": "I will start working on this task tomorrow morning.",
+      "createdAt": "2024-12-27T10:00:00.000Z"
+    },
+    {
+      "user": 2,
+      "content": "Is there any noise or disruption I should expect?",
+      "createdAt": "2024-12-27T11:30:00.000Z"
+    },
+    {
+      "user": 3,
+      "content": "The repair is complete. Please let me know if there are any issues.",
+      "createdAt": "2024-12-28T14:00:00.000Z"
+    },
+    {
+      "user": 2,
+      "content": "Thank you for the quick fix! No more leaks!",
+      "createdAt": "2024-12-28T16:30:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+﻿<RadzenRow class="rz-mx-2 rz-my-1" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceAround" Gap="1rem">
+    <RadzenColumn Size="3">
+        <RadzenText TextStyle="TextStyle.H2" TextAlign="TextAlign.Center">Tasker</RadzenText>
+    </RadzenColumn>
+    <RadzenColumn Size="1">
+        <RadzenButton>Create Task</RadzenButton>
+    </RadzenColumn>
+    <RadzenColumn Size="7">
+        <RadzenSelectBar TValue="int" Size="ButtonSize.Large">
+            <Items>
+                <RadzenSelectBarItem Value="1" Text="Tasks"/>
+                <RadzenSelectBarItem Value="2" Text="Time Reports"/>
+                <RadzenSelectBarItem Value="3" Text="Report"/>
+                <RadzenSelectBarItem Value="4" Text="Admin"/>
+            </Items>
+        </RadzenSelectBar>
+    </RadzenColumn>
+    <RadzenColumn Size="1">
+        <RadzenProfileMenu>
+            <Template>
+                <RadzenGravatar Email="user@UserSecretsConfigurationExtensions.com">
+                </RadzenGravatar>
+            </Template>
+            <ChildContent>
+                <RadzenProfileMenuItem Text="Account" Icon="account_circle"></RadzenProfileMenuItem>
+                <RadzenProfileMenuItem Text="Logout" Icon="exit_to_app"></RadzenProfileMenuItem>
+            </ChildContent>
+        </RadzenProfileMenu>
+    </RadzenColumn>
+</RadzenRow>
+
+@code {
+    
+}

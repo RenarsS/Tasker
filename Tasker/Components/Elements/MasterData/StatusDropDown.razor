@@ -1,0 +1,20 @@
+﻿@using Tasker.API.Infrastructure.Clients
+@using Tasker.Services
+@using Task = System.Threading.Tasks.Task
+@inject IMasterDataService MasterDataService;
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem">
+    <RadzenLabel Text="Status" Component="StatusBindValue"/>
+    <RadzenDropDown @bind-Value="@_value" Data="@_taskTypes" TextProperty="@nameof(Status.Name)" ValueProperty="@nameof(Status.StatusId)" Style="width: 100%" Name="StatusBindValue"/>
+</RadzenStack>
+
+@code {
+    int _value = 1;
+    IEnumerable<Status> _taskTypes = new List<Status>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _taskTypes = await MasterDataService.GetStatusAsync();
+    }
+}

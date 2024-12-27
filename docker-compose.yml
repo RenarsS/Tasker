@@ -1,0 +1,6 @@
+﻿services:
+  tasker.api:
+    image: tasker.api
+    build:
+      context: .
+      dockerfile: Tasker.API/Dockerfile
