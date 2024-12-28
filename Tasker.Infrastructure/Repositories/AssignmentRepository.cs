@@ -8,7 +8,7 @@ using Tasker.Infrastructure.Repositories.Interfaces;
 
 namespace Tasker.Infrastructure.Repositories;
 
-public class AssignmentRepository(OracleDbService oracleDbService) : IAssignmentRepository
+public class AssignmentRepository(OracleDbService oracleDbService) : IAssignmentRepository, IRepository
 {
     public async Task<IEnumerable<Assignment>> GetAssignments()
     {
@@ -72,5 +72,15 @@ public class AssignmentRepository(OracleDbService oracleDbService) : IAssignment
         parameters.Add("c_updated_comment", dbType: OracleMappingType.RefCursor, direction: ParameterDirection.Output);
         
         return await connection.QueryFirstAsync<Assignment>($"{Packages.AssignmentsCore}.update_assignment", parameters, commandType: CommandType.StoredProcedure);
+    }
+    
+    public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)
+    {
+        using var connection = oracleDbService.CreateConnection();
+        var parameters = new OracleDynamicParameters();
+        parameters.Add("i_assignment_id", dbType: OracleMappingType.Int32, value: id, direction: ParameterDirection.Input); 
+        parameters.Add("i_vector_id", dbType: OracleMappingType.NVarchar2, value: vectorId, direction: ParameterDirection.Input); 
+        
+        await connection.ExecuteAsync($"{Packages.AssignmentsCore}.link_to_vector", parameters, commandType: CommandType.StoredProcedure);
     }
 }

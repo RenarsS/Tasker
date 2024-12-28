@@ -1,14 +1,7 @@
 ﻿using Tasker.API.Services.Interfaces;
-using Tasker.Domain.Constants.Embeddings;
-using Tasker.Domain.DTO;
-using Tasker.Domain.Extensions;
 using Tasker.Domain.Import;
-using Tasker.Domain.Processor;
-using Tasker.Infrastructure.Builders;
-using Tasker.Infrastructure.Client;
-using Tasker.Infrastructure.Client.Interfaces;
+using Tasker.Infrastructure.Processor;
 using Tasker.Infrastructure.Repositories;
-using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.API.Services;
 
@@ -16,9 +9,7 @@ public class DataImportService(
     TaskRepository taskRepository, 
     AssignmentRepository assignmentRepository, 
     CommentRepository commentRepository,
-    EmbeddingProcessor embeddingProcessor,
-    IEmbeddingClient embeddingClient,
-    OrderBuilder orderBuilder) : IDataImportService
+    EmbeddingProcessor embeddingProcessor) : IDataImportService
 {
     public async Task<(int, int, int)> ImportDataBatches(IEnumerable<DataBatch> batches)
     {
@@ -43,24 +34,43 @@ public class DataImportService(
 
         try
         {
-            var task = await ProcessTask(batch.Task);
+            var taskId = await taskRepository.InsertTask(batch.Task);
+            batch.Task.TaskId = taskId;
+            var taskVectorId = await embeddingProcessor.ProcessTask(batch.Task);
+            if (!string.IsNullOrEmpty(taskVectorId))
+            {
+                await taskRepository.LinkToVector(batch.Task.TaskId, taskVectorId);
+            }
+            
             taskInserted++;
 
             foreach (var assignment in batch.Assignments)
             {
-                assignment.Task = task;
-                await ProcessAssignment(assignment);
+                assignment.Task = taskId;
+                var insertedAssignment = await assignmentRepository.InsertAssignment(assignment);
+                var assignmentVectorId = await embeddingProcessor.ProcessAssignment(insertedAssignment);
+                if (!string.IsNullOrEmpty(assignmentVectorId))
+                {
+                    await assignmentRepository.LinkToVector(insertedAssignment.AssignmentId, assignmentVectorId);
+                }
+                
                 assignmentsInserted++;
             }
 
             foreach (var comment in batch.Comments)
             {
-                comment.Task = task;
-                await ProcessComment(comment);
+                comment.Task = taskId;
+                var insertedComment = await commentRepository.InsertComment(comment);
+                var commentVectorId = await embeddingProcessor.ProcessComment(insertedComment);
+                if (!string.IsNullOrEmpty(commentVectorId))
+                {
+                    await assignmentRepository.LinkToVector(insertedComment.CommentId, commentVectorId);
+                }
+                
                 commentsInserted++;
             }
             
-            await ProcessOrder(batch.Task, batch.Assignments, batch.Comments);
+            await embeddingProcessor.ProcessOrder(batch.Task, batch.Assignments, batch.Comments);
         }
         catch (Exception e)
         {
@@ -70,42 +80,4 @@ public class DataImportService(
         
         return (taskInserted, assignmentsInserted, commentsInserted);
     }   
-
-    private async Task<int> ProcessTask(Task task)
-    {
-        var taskId = await taskRepository.InsertTask(task);
-        task.TaskId = taskId;
-        var taskMeta = task.GetMetadata();
-        var taskEmbedding = await embeddingProcessor.Process(task);
-        await embeddingClient.UpsertEmbedding(Collections.Tasks, taskEmbedding, taskMeta);
-        return taskId;
-    }
-    
-    private async System.Threading.Tasks.Task ProcessAssignment(Assignment assignment)
-    {
-        await assignmentRepository.InsertAssignment(assignment);
-        var assignmentMeta = assignment.GetMetadata();
-        var assignmentEmbedding = await embeddingProcessor.Process(assignment);
-        await embeddingClient.UpsertEmbedding(Collections.Assignments, assignmentEmbedding, assignmentMeta);
-    }
-    
-    private async System.Threading.Tasks.Task ProcessComment(Comment comment)
-    {
-        await commentRepository.InsertComment(comment);
-        var commentMeta = comment.GetMetadata();
-        var commentEmbedding = await embeddingProcessor.Process(comment);
-        await embeddingClient.UpsertEmbedding(Collections.Comments, commentEmbedding, commentMeta);
-    }
-
-    private async System.Threading.Tasks.Task ProcessOrder(Task task, IEnumerable<Assignment> assignment, IEnumerable<Comment> comments)
-    {
-        orderBuilder.SetTask(task);
-        orderBuilder.SetAssignments(assignment);
-        orderBuilder.SetComments(comments);
-        var order = orderBuilder.Build();
-        var orderMeta = order.GetMetadata();
-        var orderEmbedding = await embeddingProcessor.Process(order);
-        await embeddingClient.UpsertEmbedding(Collections.Orders, orderEmbedding, orderMeta);
-        orderBuilder.Reset();
-    }
 }

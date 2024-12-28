@@ -17,17 +17,25 @@ public class ChromaEmbeddingClient(IConfiguration configuration, ILoggerFactory 
     public async Task CreateCollection(string collectionName)
         => await _chromaClient.CreateCollectionAsync(collectionName);
 
+    public Task<string?> UpsertEmbedding(string collectionName, Embedding<float> embedding, Dictionary<string, object> metadata)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task UpsertEmbedding(string collectionName, string[] embeddingIds, ReadOnlyMemory<float>[] embeddings, object[] metadata)
         => await _chromaClient.UpsertEmbeddingsAsync(collectionName, embeddingIds, embeddings, metadata);
 
-    public async Task UpsertEmbedding(string collectionName, GeneratedEmbeddings<Embedding<float>> embeddings, Dictionary<string, object> metadata)
+    public async Task<string[]?> UpsertEmbeddings(string collectionName, GeneratedEmbeddings<Embedding<float>> embeddings, Dictionary<string, object> metadata)
     {
+        string[] ids = [];
         foreach (var embedding in embeddings)
         {
-            string[] ids = [new Guid().ToString()];
+            var result= ids.Append(Guid.NewGuid().ToString());
             ReadOnlyMemory<float>[] vectors = [embedding.Vector];
             object[] meta = [metadata.ToArray()];
             await UpsertEmbedding(collectionName,ids, vectors, meta);
         }
+
+        return ids;
     }
 }

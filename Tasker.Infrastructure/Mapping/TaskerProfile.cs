@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Tasker.Domain.DTO;
-using Task = System.Threading.Tasks.Task;
+using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.Infrastructure.Mapping;
 

@@ -9,7 +9,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Tasker.Infrastructure.Repositories;
 
-public class CommentRepository(OracleDbService oracleDbService) : ICommentRepository
+public class CommentRepository(OracleDbService oracleDbService) : ICommentRepository, IRepository
 {
     public async Task<IEnumerable<Comment>> GetComments()
     {
@@ -70,5 +70,15 @@ public class CommentRepository(OracleDbService oracleDbService) : ICommentReposi
         parameters.Add("i_comment_id", dbType: OracleMappingType.Int32, value: id, direction: ParameterDirection.Input); 
         
         await connection.ExecuteAsync($"{Packages.CommentsCore}.delete_comment", parameters, commandType: CommandType.StoredProcedure);
+    }
+    
+    public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)
+    {
+        using var connection = oracleDbService.CreateConnection();
+        var parameters = new OracleDynamicParameters();
+        parameters.Add("i_comment_id", dbType: OracleMappingType.Int32, value: id, direction: ParameterDirection.Input); 
+        parameters.Add("i_vector_id", dbType: OracleMappingType.NVarchar2, value: vectorId, direction: ParameterDirection.Input); 
+        
+        await connection.ExecuteAsync($"{Packages.CommentsCore}.link_to_vector", parameters, commandType: CommandType.StoredProcedure);
     }
 }

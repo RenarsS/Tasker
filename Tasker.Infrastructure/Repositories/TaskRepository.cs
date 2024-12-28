@@ -9,7 +9,7 @@ using Task = Tasker.Domain.DTO.Task;
 namespace Tasker.Infrastructure.Repositories;
 
 
-public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
+public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository, IRepository
 {
     
     public async Task<IEnumerable<Task>> GetTasks()
@@ -70,5 +70,15 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
         parameters.Add("i_task_id", dbType: OracleMappingType.Int32, value: id, direction: ParameterDirection.Input); 
         
         await connection.ExecuteAsync($"{Packages.TasksCore}.delete_task", parameters, commandType: CommandType.StoredProcedure);
+    }
+    
+    public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)
+    {
+        using var connection = oracleDbService.CreateConnection();
+        var parameters = new OracleDynamicParameters();
+        parameters.Add("i_task_id", dbType: OracleMappingType.Int32, value: id, direction: ParameterDirection.Input); 
+        parameters.Add("i_vector_id", dbType: OracleMappingType.NVarchar2, value: vectorId, direction: ParameterDirection.Input); 
+        
+        await connection.ExecuteAsync($"{Packages.TasksCore}.link_to_vector", parameters, commandType: CommandType.StoredProcedure);
     }
 }

@@ -5,12 +5,13 @@ using Microsoft.SemanticKernel.Connectors.Chroma;
 using OpenAI;
 using Tasker.API.Services;
 using Tasker.API.Services.Interfaces;
-using Tasker.Domain.Processor;
 using Tasker.Infrastructure.Builders;
 using Tasker.Infrastructure.Client;
+using Tasker.Infrastructure.Client.Interfaces;
 using Tasker.Infrastructure.Database;
 using Tasker.Infrastructure.Database.Interface;
 using Tasker.Infrastructure.Mapping;
+using Tasker.Infrastructure.Processor;
 using Tasker.Infrastructure.Repositories;
 #pragma warning disable SKEXP0020
 
@@ -31,9 +32,9 @@ builder.Services.AddChatClient(services
 builder.Services.AddEmbeddingGenerator(services
     => services.GetRequiredService<OpenAIClient>().AsEmbeddingGenerator(builder.Configuration["OpenAI:EmbeddingModel"]!));
 
-builder.Services.AddAutoMapper(typeof(TaskerProfile));
+builder.Services.AddAutoMapper(typeof(TaskerProfile).Assembly);
 
-builder.Services.AddScoped<ChromaEmbeddingClient>();
+builder.Services.AddScoped<IEmbeddingClient, MilvusEmbeddingClient>();
 builder.Services.AddScoped<EmbeddingProcessor>();
 builder.Services.AddScoped<OrderBuilder>();
 

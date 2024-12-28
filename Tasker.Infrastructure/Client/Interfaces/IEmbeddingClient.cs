@@ -8,7 +8,7 @@ public interface IEmbeddingClient
     
     Task CreateCollection(string collectionName);
     
-    Task UpsertEmbedding(string collectionName, string[] embeddingIds, ReadOnlyMemory<float>[] embeddings, object[] metadata);
+    Task<string?> UpsertEmbedding(string collectionName, Embedding<float> embedding, Dictionary<string, object> metadata);
     
-    Task UpsertEmbedding(string collectionName, GeneratedEmbeddings<Embedding<float>> embeddings, Dictionary<string, object> metadata);
+    Task<string[]?> UpsertEmbeddings(string collectionName, GeneratedEmbeddings<Embedding<float>> embeddings, Dictionary<string, object> metadata);
 }
