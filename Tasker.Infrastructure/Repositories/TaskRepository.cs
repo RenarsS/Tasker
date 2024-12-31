@@ -9,7 +9,7 @@ using Task = Tasker.Domain.DTO.Task;
 namespace Tasker.Infrastructure.Repositories;
 
 
-public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository, IRepository
+public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
 {
     
     public async Task<IEnumerable<Task>> GetTasks()

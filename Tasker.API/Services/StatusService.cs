@@ -1,11 +1,10 @@
 ﻿using Tasker.API.Services.Interfaces;
-using Tasker.Domain.DTO;
 using Tasker.Domain.MasterData;
-using Tasker.Infrastructure.Repositories;
+using Tasker.Infrastructure.Repositories.Interfaces;
 
 namespace Tasker.API.Services;
 
-public class StatusService(StatusRepository statusRepository) : IStatusService
+public class StatusService(IStatusRepository statusRepository) : IStatusService
 {
     public async Task<IEnumerable<Status>> GetAllStatuses()
     {

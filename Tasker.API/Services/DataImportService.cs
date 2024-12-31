@@ -1,15 +1,15 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.Import;
-using Tasker.Infrastructure.Processor;
-using Tasker.Infrastructure.Repositories;
+using Tasker.Infrastructure.Processor.Interfaces;
+using Tasker.Infrastructure.Repositories.Interfaces;
 
 namespace Tasker.API.Services;
 
 public class DataImportService(
-    TaskRepository taskRepository, 
-    AssignmentRepository assignmentRepository, 
-    CommentRepository commentRepository,
-    EmbeddingProcessor embeddingProcessor) : IDataImportService
+    ITaskRepository taskRepository, 
+    IAssignmentRepository assignmentRepository, 
+    ICommentRepository commentRepository,
+    IEmbeddingProcessor embeddingProcessor) : IDataImportService
 {
     public async Task<(int, int, int)> ImportDataBatches(IEnumerable<DataBatch> batches)
     {

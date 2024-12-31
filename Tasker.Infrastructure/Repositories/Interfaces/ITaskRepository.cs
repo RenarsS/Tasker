@@ -2,7 +2,7 @@
 
 namespace Tasker.Infrastructure.Repositories.Interfaces;
 
-public interface ITaskRepository
+public interface ITaskRepository : IRepository
 {
     Task<IEnumerable<Task>> GetTasks();
     

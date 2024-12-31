@@ -3,7 +3,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Tasker.Infrastructure.Repositories.Interfaces;
 
-public interface ICommentRepository
+public interface ICommentRepository : IRepository
 {
     Task<IEnumerable<Comment>> GetComments();
     

@@ -12,7 +12,10 @@ using Tasker.Infrastructure.Database;
 using Tasker.Infrastructure.Database.Interface;
 using Tasker.Infrastructure.Mapping;
 using Tasker.Infrastructure.Processor;
+using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories;
+using Tasker.Infrastructure.Repositories.Interfaces;
+
 #pragma warning disable SKEXP0020
 
 var builder = WebApplication.CreateSlimBuilder(args);
@@ -35,15 +38,15 @@ builder.Services.AddEmbeddingGenerator(services
 builder.Services.AddAutoMapper(typeof(TaskerProfile).Assembly);
 
 builder.Services.AddScoped<IEmbeddingClient, MilvusEmbeddingClient>();
-builder.Services.AddScoped<EmbeddingProcessor>();
+builder.Services.AddScoped<IEmbeddingProcessor, EmbeddingProcessor>();
 builder.Services.AddScoped<OrderBuilder>();
 
-builder.Services.AddScoped<TaskRepository>();
-builder.Services.AddScoped<CommentRepository>();
-builder.Services.AddScoped<AssignmentRepository>();
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<StatusRepository>();
-builder.Services.AddScoped<TaskTypeRepository>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ICommentRepository,CommentRepository>();
+builder.Services.AddScoped<IAssignmentRepository,AssignmentRepository>();
+builder.Services.AddScoped<IUserRepository,UserRepository>();
+builder.Services.AddScoped<IStatusRepository,StatusRepository>();
+builder.Services.AddScoped<ITaskTypeRepository,TaskTypeRepository>();
 
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICommentService, CommentService>();

@@ -3,7 +3,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Tasker.Infrastructure.Repositories.Interfaces;
 
-public interface IAssignmentRepository
+public interface IAssignmentRepository : IRepository
 {
     Task<IEnumerable<Assignment>> GetAssignments();
     

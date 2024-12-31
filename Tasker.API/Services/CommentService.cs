@@ -1,12 +1,11 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.DTO;
-using Tasker.Infrastructure.Repositories;
 using Tasker.Infrastructure.Repositories.Interfaces;
 using Task = System.Threading.Tasks.Task;
 
 namespace Tasker.API.Services;
 
-public class CommentService(CommentRepository commentRepository) : ICommentService
+public class CommentService(ICommentRepository commentRepository) : ICommentService
 {
     public async Task<IEnumerable<Comment>> GetAllComments()
     {

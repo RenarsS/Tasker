@@ -1,10 +1,10 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.DTO;
-using Tasker.Infrastructure.Repositories;
+using Tasker.Infrastructure.Repositories.Interfaces;
 
 namespace Tasker.API.Services;
 
-public class AssignmentService(AssignmentRepository assignmentRepository) : IAssignmentService
+public class AssignmentService(IAssignmentRepository assignmentRepository) : IAssignmentService
 {
     public async Task<IEnumerable<Assignment>> GetAssignments()
     {

@@ -1,14 +1,16 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.Import;
 using Tasker.Infrastructure.Repositories;
+using Tasker.Infrastructure.Repositories.Interfaces;
 using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.API.Services;
 
-public class TaskService(TaskRepository taskRepository, AssignmentRepository assignmentRepository, CommentRepository  commentRepository) : ITaskService
+public class TaskService(
+    ITaskRepository taskRepository, 
+    IAssignmentRepository assignmentRepository, 
+    ICommentRepository  commentRepository) : ITaskService
 {
-    
-
     public async Task<IEnumerable<Task>> GetAllTasks()
     {
         var tasks = await taskRepository.GetTasks();

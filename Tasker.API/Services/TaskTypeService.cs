@@ -1,11 +1,10 @@
 ﻿using Tasker.API.Services.Interfaces;
-using Tasker.Domain.DTO;
 using Tasker.Domain.MasterData;
-using Tasker.Infrastructure.Repositories;
+using Tasker.Infrastructure.Repositories.Interfaces;
 
 namespace Tasker.API.Services;
 
-public class TaskTypeService(TaskTypeRepository statusRepository) : ITaskTypeService
+public class TaskTypeService(ITaskTypeRepository statusRepository) : ITaskTypeService
 {
     public async Task<IEnumerable<TaskType>> GetAllTaskTypes()
     {
