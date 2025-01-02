@@ -11,7 +11,7 @@ public interface ICommentService
     
     public Task<IEnumerable<Comment>> GetCommentsByTaskId(int taskId);
     
-    public Task<Comment?> CreateComment(Comment comment);
+    public Task<Comment> CreateComment(Comment comment);
     
     public Task<Comment> UpdateComment(Comment comment);
     

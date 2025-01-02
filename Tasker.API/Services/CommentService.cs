@@ -1,11 +1,12 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.DTO;
+using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories.Interfaces;
 using Task = System.Threading.Tasks.Task;
 
 namespace Tasker.API.Services;
 
-public class CommentService(ICommentRepository commentRepository) : ICommentService
+public class CommentService(ICommentRepository commentRepository, IEmbeddingProcessor embeddingProcessor) : ICommentService
 {
     public async Task<IEnumerable<Comment>> GetAllComments()
     {
@@ -22,9 +23,16 @@ public class CommentService(ICommentRepository commentRepository) : ICommentServ
         return await commentRepository.GetCommentsByTaskId(taskId);
     }
 
-    public async Task<Comment?> CreateComment(Comment comment)
+    public async Task<Comment> CreateComment(Comment comment)
     {
-        return await commentRepository.InsertComment(comment);
+        var insertedComment = await commentRepository.InsertComment(comment);
+        var commentVectorId = await embeddingProcessor.ProcessComment(insertedComment);
+        if (!string.IsNullOrEmpty(commentVectorId))
+        {
+            await commentRepository.LinkToVector(insertedComment.CommentId, commentVectorId);
+        }
+        
+        return insertedComment;
     }
 
     public async Task<Comment> UpdateComment(Comment comment)

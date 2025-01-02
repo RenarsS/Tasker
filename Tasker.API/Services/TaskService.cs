@@ -1,5 +1,6 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.Import;
+using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories;
 using Tasker.Infrastructure.Repositories.Interfaces;
 using Task = Tasker.Domain.DTO.Task;
@@ -9,7 +10,8 @@ namespace Tasker.API.Services;
 public class TaskService(
     ITaskRepository taskRepository, 
     IAssignmentRepository assignmentRepository, 
-    ICommentRepository  commentRepository) : ITaskService
+    ICommentRepository  commentRepository,
+    IEmbeddingProcessor embeddingProcessor) : ITaskService
 {
     public async Task<IEnumerable<Task>> GetAllTasks()
     {
@@ -25,6 +27,12 @@ public class TaskService(
     public async Task<Task?> CreateTask(Task task)
     {
         var taskId = await taskRepository.InsertTask(task);
+        var taskVectorId = await embeddingProcessor.ProcessTask(task);
+        if (!string.IsNullOrEmpty(taskVectorId))
+        {
+            await taskRepository.LinkToVector(taskId, taskVectorId);
+        }
+        
         if (taskId == 0)
         {
             return null;

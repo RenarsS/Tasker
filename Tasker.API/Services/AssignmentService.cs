@@ -1,10 +1,11 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.DTO;
+using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories.Interfaces;
 
 namespace Tasker.API.Services;
 
-public class AssignmentService(IAssignmentRepository assignmentRepository) : IAssignmentService
+public class AssignmentService(IAssignmentRepository assignmentRepository, IEmbeddingProcessor embeddingProcessor) : IAssignmentService
 {
     public async Task<IEnumerable<Assignment>> GetAssignments()
     {
@@ -28,7 +29,14 @@ public class AssignmentService(IAssignmentRepository assignmentRepository) : IAs
 
     public async Task<Assignment> CreateAssignment(Assignment assignment)
     {
-        return await assignmentRepository.InsertAssignment(assignment);
+        var insertedAssignment = await assignmentRepository.InsertAssignment(assignment);
+        var assignmentVectorId = await embeddingProcessor.ProcessAssignment(insertedAssignment);
+        if (!string.IsNullOrEmpty(assignmentVectorId))
+        {
+            await assignmentRepository.LinkToVector(insertedAssignment.AssignmentId, assignmentVectorId);
+        }
+
+        return insertedAssignment;
     }
 
     public async Task<Assignment> UpdateAssignment(Assignment assignment)

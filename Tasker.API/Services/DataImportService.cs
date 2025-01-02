@@ -6,9 +6,9 @@ using Tasker.Infrastructure.Repositories.Interfaces;
 namespace Tasker.API.Services;
 
 public class DataImportService(
-    ITaskRepository taskRepository, 
-    IAssignmentRepository assignmentRepository, 
-    ICommentRepository commentRepository,
+    ITaskService taskService, 
+    IAssignmentService assignmentService, 
+    ICommentService commentService,
     IEmbeddingProcessor embeddingProcessor) : IDataImportService
 {
     public async Task<(int, int, int)> ImportDataBatches(IEnumerable<DataBatch> batches)
@@ -34,39 +34,27 @@ public class DataImportService(
 
         try
         {
-            var taskId = await taskRepository.InsertTask(batch.Task);
-            batch.Task.TaskId = taskId;
-            var taskVectorId = await embeddingProcessor.ProcessTask(batch.Task);
-            if (!string.IsNullOrEmpty(taskVectorId))
+            var task = await taskService.CreateTask(batch.Task);
+            if (task == null)
             {
-                await taskRepository.LinkToVector(batch.Task.TaskId, taskVectorId);
+                return (taskInserted, assignmentsInserted, commentsInserted);
             }
             
             taskInserted++;
 
             foreach (var assignment in batch.Assignments)
             {
-                assignment.Task = taskId;
-                var insertedAssignment = await assignmentRepository.InsertAssignment(assignment);
-                var assignmentVectorId = await embeddingProcessor.ProcessAssignment(insertedAssignment);
-                if (!string.IsNullOrEmpty(assignmentVectorId))
-                {
-                    await assignmentRepository.LinkToVector(insertedAssignment.AssignmentId, assignmentVectorId);
-                }
-                
+                assignment.Task = task.TaskId;
+                var insertedAssignment = await assignmentService.CreateAssignment(assignment);
+                assignment.AssignmentId = insertedAssignment.AssignmentId;
                 assignmentsInserted++;
             }
 
             foreach (var comment in batch.Comments)
             {
-                comment.Task = taskId;
-                var insertedComment = await commentRepository.InsertComment(comment);
-                var commentVectorId = await embeddingProcessor.ProcessComment(insertedComment);
-                if (!string.IsNullOrEmpty(commentVectorId))
-                {
-                    await assignmentRepository.LinkToVector(insertedComment.CommentId, commentVectorId);
-                }
-                
+                comment.Task = task.TaskId;
+                var insertedComment = await commentService.CreateComment(comment);
+                comment.CommentId = insertedComment.CommentId;
                 commentsInserted++;
             }
             

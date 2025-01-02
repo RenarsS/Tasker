@@ -21,10 +21,5 @@ public class TaskModule : CarterModule
         app.MapPost(TaskRoutes.Base, async (Task task, ITaskService taskService) => await taskService.CreateTask(task));
         app.MapPut(TaskRoutes.Base, async (Task task, ITaskService taskService ) => await taskService.UpdateTask(task));
         app.MapDelete(TaskRoutes.ById, async (int id, ITaskService taskService) => await taskService.DeleteTask(id));
-        app.MapGet(TaskRoutes.BatchById,
-            async (int id, ITaskService taskService) => await taskService.GetTaskDataBatch(id));
-        app.MapPost(TaskRoutes.Batches,
-            async (IEnumerable<DataBatch> dataBatches, IDataImportService dataImportService) =>
-                await dataImportService.ImportDataBatches(dataBatches));
     }
 }
