@@ -34,7 +34,7 @@ public class EmbeddingProcessor(
         return vectorId?.First()!;
     }
     
-    public async System.Threading.Tasks.Task<string> ProcessAssignment(Assignment assignment)
+    public async Task<string> ProcessAssignment(Assignment assignment)
     {
         var assignmentMeta = assignment.GetMetadata();
         var assignmentEmbedding = await Process(assignment);
@@ -42,7 +42,7 @@ public class EmbeddingProcessor(
         return vectorId?.First()!;
     }
     
-    public async System.Threading.Tasks.Task<string> ProcessComment(Comment comment)
+    public async Task<string> ProcessComment(Comment comment)
     {
         var commentMeta = comment.GetMetadata();
         var commentEmbedding = await Process(comment);

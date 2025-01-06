@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Connectors.Chroma;
+using Microsoft.SemanticKernel.Memory;
 using Tasker.Infrastructure.Client.Interfaces;
 
 namespace Tasker.Infrastructure.Client;
@@ -37,5 +38,16 @@ public class ChromaEmbeddingClient(IConfiguration configuration, ILoggerFactory 
         }
 
         return ids;
+    }
+
+    public IAsyncEnumerable<(MemoryRecord, double)> GetNearestMatches(string collectionName, ReadOnlyMemory<float> embedding, int limit, double minRelevanceScore = 0,
+        bool withEmbeddings = false)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MemoryRecord> GetEmbedding(string collectionName, string key, bool withEmbeddings = false)
+    {
+        throw new NotImplementedException();
     }
 }

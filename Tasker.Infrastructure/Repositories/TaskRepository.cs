@@ -11,7 +11,23 @@ namespace Tasker.Infrastructure.Repositories;
 
 public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
 {
-    
+    private const string sql = @"
+        SELECT
+            t.task_id AS TaskId,
+            t.task_type AS TaskType,
+            t.title AS Title,
+            t.description AS Description,
+            t.status AS Status,
+            t.created_by AS CreatedBy,
+            t.created_at AS CreatedAt,
+            t.updated_at AS UpdatedAt,
+            t.vector_id AS VectorId,
+            t.due AS Due
+        FROM
+            taskmaster.tasks t
+        WHERE 
+            1 = 1
+    ";
     public async Task<IEnumerable<Task>> GetTasks()
     {
         using var connection = oracleDbService.CreateConnection();
@@ -71,7 +87,24 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
         
         await connection.ExecuteAsync($"{Packages.TasksCore}.delete_task", parameters, commandType: CommandType.StoredProcedure);
     }
-    
+
+    public async Task<Task> GetTaskByVectorId(string vectorId)
+    {
+        using var connection = oracleDbService.CreateConnection();
+        var parameters = new OracleDynamicParameters();
+        parameters.Add("i_vector_id", dbType: OracleMappingType.NVarchar2, value: vectorId);
+        parameters.Add("c_task", dbType: OracleMappingType.RefCursor,direction: ParameterDirection.Output);
+        
+        return await connection.QueryFirstAsync<Task>($"{Packages.TasksCore}.get_task_by_vector_id", parameters, commandType: CommandType.StoredProcedure);
+    }
+
+    public async Task<IEnumerable<Task>> GetTasksNotEmbedded()
+    {
+        var connection = oracleDbService.CreateConnection();
+        var query = sql + "AND t.vector_id IS NULL";
+        return await connection.QueryAsync<Task>(query);
+    }
+
     public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)
     {
         using var connection = oracleDbService.CreateConnection();
@@ -81,4 +114,5 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
         
         await connection.ExecuteAsync($"{Packages.TasksCore}.link_to_vector", parameters, commandType: CommandType.StoredProcedure);
     }
+    
 }

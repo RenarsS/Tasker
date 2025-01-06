@@ -1,4 +1,5 @@
-﻿using Task = Tasker.Domain.DTO.Task;
+﻿using System.Collections;
+using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.Infrastructure.Repositories.Interfaces;
 
@@ -13,4 +14,8 @@ public interface ITaskRepository : IRepository
     Task<Task> UpdateTask(Task task);
     
     System.Threading.Tasks.Task DeleteTask(int id);
+    
+    Task<Task> GetTaskByVectorId(string vectorId);
+
+    Task<IEnumerable<Task>> GetTasksNotEmbedded();
 }

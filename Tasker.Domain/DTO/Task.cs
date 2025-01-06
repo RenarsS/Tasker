@@ -19,4 +19,6 @@ public class Task
     public DateTime UpdateAt { get; set; }
 
     public DateTime Due { get; set; }
+
+    public string? VectorId { get; set; }
 };

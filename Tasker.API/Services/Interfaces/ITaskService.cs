@@ -16,4 +16,8 @@ public interface ITaskService
     public System.Threading.Tasks.Task DeleteTask(int id);
 
     Task<DataBatch> GetTaskDataBatch(int id);
+    
+    Task<Task> GetTaskByVectorId (string vectorId);
+
+    Task<bool> EmbedTasks();
 }

@@ -69,4 +69,29 @@ public class TaskService(
 
         return dataBatch;
     }
+
+    public async Task<Task> GetTaskByVectorId(string vectorId)
+    {
+        return await taskRepository.GetTaskByVectorId(vectorId);
+    }
+
+    public async Task<bool> EmbedTasks()
+    {
+        var tasks = await taskRepository.GetTasksNotEmbedded();
+        try
+        {
+            foreach (var task in tasks)
+            {
+                var vectorId = await embeddingProcessor.ProcessTask(task);
+                await taskRepository.LinkToVector(task.TaskId, vectorId);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+
+        return true;
+    }
 }

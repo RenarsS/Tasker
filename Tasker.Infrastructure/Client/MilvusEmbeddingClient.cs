@@ -45,4 +45,11 @@ public class MilvusEmbeddingClient(IConfiguration configuration) : IEmbeddingCli
         
         return ids;
     }
+
+    public IAsyncEnumerable<(MemoryRecord, double)> GetNearestMatches(string collectionName, ReadOnlyMemory<float> embedding, int limit, double minRelevanceScore = 0,
+        bool withEmbeddings = false)
+        =>  _milvusMemoryStore.GetNearestMatchesAsync(collectionName, embedding, limit, minRelevanceScore, withEmbeddings);
+
+    public async Task<MemoryRecord?> GetEmbedding(string collectionName, string key, bool withEmbeddings = false)
+        => await _milvusMemoryStore.GetAsync(collectionName, key, withEmbeddings);
 }
