@@ -26,11 +26,11 @@ public class CommentService(ICommentRepository commentRepository, IEmbeddingProc
     public async Task<Comment> CreateComment(Comment comment)
     {
         var insertedComment = await commentRepository.InsertComment(comment);
-        var commentVectorId = await embeddingProcessor.ProcessComment(insertedComment);
-        if (!string.IsNullOrEmpty(commentVectorId))
-        {
-            await commentRepository.LinkToVector(insertedComment.CommentId, commentVectorId);
-        }
+        // var commentVectorId = await embeddingProcessor.ProcessComment(insertedComment);
+        // if (!string.IsNullOrEmpty(commentVectorId))
+        // {
+        //     await commentRepository.LinkToVector(insertedComment.CommentId, commentVectorId);
+        // }
         
         return insertedComment;
     }

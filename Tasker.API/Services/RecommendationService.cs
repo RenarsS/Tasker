@@ -18,11 +18,11 @@ public class RecommendationService(
         var relevantOrders = await retrievalService.GetRelevantOrders(task);
         var prompt = BuildPrompt(task, relevantOrders);
         var response = await chatClient.CompleteAsync(prompt);
-        if (!string.IsNullOrEmpty(response.Message.Contents.ToString()))
+        if (!string.IsNullOrEmpty(response.Message.Text))
         {
             return new Comment
             {
-                Content = response.Message.Contents.ToString(),
+                Content = response.Message.Text,
                 Task = task.TaskId,
                 User = 21
             };

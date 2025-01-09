@@ -8,6 +8,7 @@ using Task = Tasker.Domain.DTO.Task;
 namespace Tasker.API.Services;
 
 public class RetrievalService(
+    IConfiguration configuration,
     IEmbeddingClient embeddingClient, 
     ITaskService taskService, 
     IAssignmentService assignmentService, 
@@ -16,9 +17,11 @@ public class RetrievalService(
 {
     public async Task<List<(double, Order)>> GetRelevantOrders(Task task)
     {
+        var limit = configuration.GetValue<int>("RetrievalSettings:MaxLimit");
+        var relevanceScore = configuration.GetValue<double>("RetrievalSettings:RelevanceScore");
         var orders = new List<(double, Order)>();
         var taskMemoryRecord = await embeddingClient.GetEmbedding(Collections.Tasks, task.VectorId, true);
-        var relevantTaskEmbeddings = embeddingClient.GetNearestMatches(Collections.Tasks, taskMemoryRecord.Embedding, 10, 0.7).ToBlockingEnumerable();
+        var relevantTaskEmbeddings = embeddingClient.GetNearestMatches(Collections.Tasks, taskMemoryRecord.Embedding, limit, relevanceScore).ToBlockingEnumerable();
         foreach (var (memoryRecord, similarity) in relevantTaskEmbeddings)
         {
             var order = await RetrieveOrderByVectorId(memoryRecord.Key);

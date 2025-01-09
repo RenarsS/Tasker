@@ -30,11 +30,11 @@ public class AssignmentService(IAssignmentRepository assignmentRepository, IEmbe
     public async Task<Assignment> CreateAssignment(Assignment assignment)
     {
         var insertedAssignment = await assignmentRepository.InsertAssignment(assignment);
-        var assignmentVectorId = await embeddingProcessor.ProcessAssignment(insertedAssignment);
-        if (!string.IsNullOrEmpty(assignmentVectorId))
-        {
-            await assignmentRepository.LinkToVector(insertedAssignment.AssignmentId, assignmentVectorId);
-        }
+        // var assignmentVectorId = await embeddingProcessor.ProcessAssignment(insertedAssignment);
+        // if (!string.IsNullOrEmpty(assignmentVectorId))
+        // {
+        //     await assignmentRepository.LinkToVector(insertedAssignment.AssignmentId, assignmentVectorId);
+        // }
 
         return insertedAssignment;
     }
