@@ -7,4 +7,6 @@ public static class TaskRoutes
     public const string ById = Base + "/{id}";
     
     public const string Embed = Base + "-embed";
+    
+    public const string Job = "/job" + Embed;
 }

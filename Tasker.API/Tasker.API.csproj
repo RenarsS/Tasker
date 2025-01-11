@@ -9,6 +9,11 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);SKEXP0001</NoWarn>
+        <NoWarn>$(NoWarn);SKEXP0020</NoWarn>
+    </PropertyGroup>
+
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
@@ -17,7 +22,11 @@
 
     <ItemGroup>
       <PackageReference Include="Carter" Version="8.2.1" />
+      <PackageReference Include="NRedisStack" Version="0.13.1" />
       <PackageReference Include="NSwag.AspNetCore" Version="14.1.0" />
+      <PackageReference Include="Quartz" Version="3.13.1" />
+      <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.1" />
+      <PackageReference Include="Quartz.Extensions.Hosting" Version="3.13.1" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
       <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     </ItemGroup>
@@ -25,11 +34,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Tasker.Domain\Tasker.Domain.csproj" />
       <ProjectReference Include="..\Tasker.Infrastructure\Tasker.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Jobs\" />
-      <Folder Include="Prompts\" />
     </ItemGroup>
 
 </Project>

@@ -2,7 +2,11 @@ using Carter;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.Chroma;
+using Microsoft.SemanticKernel.Connectors.Weaviate;
+using Microsoft.SemanticKernel.Memory;
 using OpenAI;
+using Quartz;
+using StackExchange.Redis;
 using Tasker.API.Services;
 using Tasker.API.Services.Interfaces;
 using Tasker.Infrastructure.Builders;
@@ -16,7 +20,6 @@ using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories;
 using Tasker.Infrastructure.Repositories.Interfaces;
 
-#pragma warning disable SKEXP0020
 
 var builder = WebApplication.CreateSlimBuilder(args);
 builder.Logging.AddConsole();
@@ -25,7 +28,7 @@ builder.Services.AddScoped<OracleDbService>(provider =>
     new OracleDbService(builder.Configuration.GetConnectionString("TaskerDb")));
 
 builder.Services.AddScoped<IChromaClient, ChromaClient>();
-
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration["Redis:Host"]!));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton(new OpenAIClient(builder.Configuration["OpenAI:ApiKey"]));
 
@@ -35,9 +38,13 @@ builder.Services.AddChatClient(services
 builder.Services.AddEmbeddingGenerator(services
     => services.GetRequiredService<OpenAIClient>().AsEmbeddingGenerator(builder.Configuration["OpenAI:EmbeddingModel"]!));
 
+builder.Services.AddQuartz();
+builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+
 builder.Services.AddAutoMapper(typeof(TaskerProfile).Assembly);
 
-builder.Services.AddScoped<IEmbeddingClient, MilvusEmbeddingClient>();
+builder.Services.AddScoped<IMemoryStore, WeaviateMemoryStore>((services) => new WeaviateMemoryStore(builder.Configuration["WeaviateDb:Endpoint"]));
+builder.Services.AddScoped<IEmbeddingClient, WeaviateEmbeddingClient>();
 builder.Services.AddScoped<IEmbeddingProcessor, EmbeddingProcessor>();
 builder.Services.AddScoped<OrderBuilder>();
 
@@ -56,6 +63,7 @@ builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<ITaskTypeService, TaskTypeService>();
 builder.Services.AddScoped<IDataImportService, DataImportService>();
 builder.Services.AddScoped<IRetrievalService, RetrievalService>();
+builder.Services.AddScoped<IPromptService, PromptService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 builder.Services.AddScoped<IVectorSeedTask, VectorSeedTask>();

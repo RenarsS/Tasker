@@ -24,7 +24,7 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
             t.vector_id AS VectorId,
             t.due AS Due
         FROM
-            taskmaster.tasks t
+            tasker.tasks t
         WHERE 
             1 = 1
     ";

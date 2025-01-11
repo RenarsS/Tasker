@@ -1,4 +1,5 @@
 ﻿using Carter;
+using Tasker.API.Jobs;
 using Tasker.API.Services.Interfaces;
 using Tasker.Domain.Constants.Routes;
 using Task = Tasker.Domain.DTO.Task;

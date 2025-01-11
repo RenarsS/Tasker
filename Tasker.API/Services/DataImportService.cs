@@ -58,7 +58,7 @@ public class DataImportService(
                 commentsInserted++;
             }
             
-            await embeddingProcessor.ProcessOrder(batch.Task, batch.Assignments, batch.Comments);
+            //await embeddingProcessor.ProcessOrder(batch.Task, batch.Assignments, batch.Comments);
         }
         catch (Exception e)
         {

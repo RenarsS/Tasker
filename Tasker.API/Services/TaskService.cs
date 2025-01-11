@@ -1,5 +1,6 @@
 ﻿using Tasker.API.Services.Interfaces;
 using Tasker.Domain.Import;
+using Tasker.Domain.Settings;
 using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories;
 using Tasker.Infrastructure.Repositories.Interfaces;
@@ -8,11 +9,14 @@ using Task = Tasker.Domain.DTO.Task;
 namespace Tasker.API.Services;
 
 public class TaskService(
+    IConfiguration configuration,
     ITaskRepository taskRepository, 
-    IAssignmentRepository assignmentRepository, 
-    ICommentRepository  commentRepository,
+    IAssignmentService assignmentService, 
+    ICommentService  commentService,
     IEmbeddingProcessor embeddingProcessor) : ITaskService
 {
+    private readonly EmbeddingSettings _embeddingSettings = configuration.GetSection("EmbeddingSettings").Get<EmbeddingSettings>()!;
+    private readonly RecommendationSettings _recommendationSettings = configuration.GetSection("RecommendationSettings").Get<RecommendationSettings>()!;
     public async Task<IEnumerable<Task>> GetAllTasks()
     {
         var tasks = await taskRepository.GetTasks();
@@ -27,11 +31,26 @@ public class TaskService(
     public async Task<Task?> CreateTask(Task task)
     {
         var taskId = await taskRepository.InsertTask(task);
-        var taskVectorId = await embeddingProcessor.ProcessTask(task);
+        
+        string taskVectorId = String.Empty;
+        if (_embeddingSettings.IsEnabled)
+        {
+            taskVectorId = await embeddingProcessor.ProcessTask(task);
+        }
+        
+        task.TaskId = taskId;
+        task.VectorId = taskVectorId;   
+
         if (!string.IsNullOrEmpty(taskVectorId))
         {
             await taskRepository.LinkToVector(taskId, taskVectorId);
         }
+        /*
+        if (_recommendationSettings.IsEnabled)
+        {
+            var recommendationComment = await recommendationService.GenerateRecommendationComment(task);
+            await commentService.CreateComment(recommendationComment);
+        }*/
         
         if (taskId == 0)
         {
@@ -57,9 +76,9 @@ public class TaskService(
         
         try
         {
-            dataBatch.Task = await taskRepository.GetTaskById(id);
-            dataBatch.Assignments = await assignmentRepository.GetAssignmentsByTaskId(id);
-            dataBatch.Comments = await commentRepository.GetCommentsByTaskId(id);
+            dataBatch.Task = await GetTaskById(id);
+            dataBatch.Assignments = await assignmentService.GetAssignmentsByTaskId(id);
+            dataBatch.Comments = await commentService.GetCommentsByTaskId(id);
         }
         catch (Exception e)
         {
