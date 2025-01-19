@@ -15,6 +15,6 @@ public class RetrievalModule : CarterModule
     
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost(RetrievalRoutes.Base, async ([FromBody]Task task, IRetrievalService retrievalService) => await retrievalService.GetRelevantOrders(task));
+        app.MapPost(RetrievalRoutes.Base, async (Task task, int relevantTaskCount, IRetrievalService retrievalService) => await retrievalService.GetRelevantOrders(task, relevantTaskCount));
     }
 }

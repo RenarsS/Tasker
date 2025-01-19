@@ -45,7 +45,7 @@ public class EmbeddingProcessor(
     public async Task<string> ProcessComment(Comment comment)
     {
         var commentMeta = comment.GetMetadata();
-        var commentEmbedding = await Process(comment);
+        var commentEmbedding = await Process(comment.Content);
         var vectorId = await embeddingClient.UpsertEmbeddings(Collections.Comments, commentEmbedding, commentMeta);
         return vectorId?.First()!;
     }
@@ -60,5 +60,13 @@ public class EmbeddingProcessor(
         var orderEmbedding = await Process(order);
         await embeddingClient.UpsertEmbeddings(Collections.Orders, orderEmbedding, orderMeta);
         orderBuilder.Reset();
+    }
+
+    public async Task<string> ProcessQuery(string prompt, Query query)
+    {
+        var queryMetadata = query.GetMetadata();
+        var promptEmbedding = await Process(prompt);
+        var vectorId = await embeddingClient.UpsertEmbeddings(Collections.Queries, promptEmbedding, queryMetadata);
+        return vectorId?.First()!;
     }
 }

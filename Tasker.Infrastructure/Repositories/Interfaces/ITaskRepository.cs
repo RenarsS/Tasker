@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Tasker.Domain.DTO.Analytics;
 using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.Infrastructure.Repositories.Interfaces;
@@ -18,4 +19,6 @@ public interface ITaskRepository : IRepository
     Task<Task> GetTaskByVectorId(string vectorId);
 
     Task<IEnumerable<Task>> GetTasksNotEmbedded();
+
+    System.Threading.Tasks.Task InsertTaskRetrievalRating(TaskRetrievalRating taskRetrievalRating);
 }

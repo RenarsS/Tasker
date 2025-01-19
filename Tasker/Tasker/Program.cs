@@ -1,4 +1,8 @@
+using Radzen;
+using Tasker.API;
 using Tasker.Client.Pages;
+using Tasker.Client.Services;
+using Tasker.Client.Services.Interfaces;
 using Tasker.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddRadzenComponents();
+
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ITaskerClient, TaskerClient>();
+builder.Services.AddScoped<IMasterDataService, MasterDataService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 

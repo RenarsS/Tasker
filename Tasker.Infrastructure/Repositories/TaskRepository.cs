@@ -2,6 +2,7 @@
 using Dapper;
 using Dapper.Oracle;
 using Tasker.Domain.Constants.Packages;
+using Tasker.Domain.DTO.Analytics;
 using Tasker.Infrastructure.Database;
 using Tasker.Infrastructure.Repositories.Interfaces;
 using Task = Tasker.Domain.DTO.Task;
@@ -103,6 +104,18 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
         var connection = oracleDbService.CreateConnection();
         var query = sql + "AND t.vector_id IS NULL";
         return await connection.QueryAsync<Task>(query);
+    }
+
+    public async System.Threading.Tasks.Task InsertTaskRetrievalRating(TaskRetrievalRating taskRetrievalRating)
+    {
+        using var connection = oracleDbService.CreateConnection();
+        var parameters = new OracleDynamicParameters();
+        parameters.Add("i_task_id", dbType: OracleMappingType.Int32, value: taskRetrievalRating.TaskId, direction: ParameterDirection.Input); 
+        parameters.Add("i_retrieved_task_id", dbType: OracleMappingType.Int32, value: taskRetrievalRating.RetrievalTaskId, direction: ParameterDirection.Input);
+        parameters.Add("i_rating", dbType: OracleMappingType.Double, value: taskRetrievalRating.Rating, direction: ParameterDirection.Input);
+        parameters.Add("o_task_id", dbType: OracleMappingType.Int32, direction: ParameterDirection.Output);
+        
+        await connection.ExecuteAsync($"{Packages.TasksCore}.insert_task_retrieval_rating", parameters, commandType: CommandType.StoredProcedure);
     }
 
     public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)

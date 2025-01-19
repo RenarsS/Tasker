@@ -9,4 +9,8 @@ public static class MetadataProperties
     public const string CommentId = "CommentId";
     
     public const string AssignmentId = "AssignmentId";
+
+    public const string QueryId = "QueryId";
+    
+    public const string ResponseId = "ResponseId";
 }

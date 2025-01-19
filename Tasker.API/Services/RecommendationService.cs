@@ -12,25 +12,35 @@ public class RecommendationService(
     IConfiguration configuration,
     IChatClient chatClient, 
     IRetrievalService retrievalService,
-    IPromptService promptService) : IRecommendationService
+    IResponseService responseService,
+    IPromptService promptService,
+    IAnalyticsService analyticsService) : IRecommendationService
 {
-    public async Task<Comment> GenerateRecommendationComment(Task task)
+    public async Task<Response> GenerateRecommendationResponse(Task task, int relevantTaskCount = 5)
     {
         var options = new ChatOptions();
-        var relevantOrders = await retrievalService.GetRelevantOrders(task);
+        var relevantOrders = await retrievalService.GetRelevantOrders(task, relevantTaskCount);
         var prompt = await BuildPrompt(task, relevantOrders, Prompts.TaskRetrieval);
-        var response = await chatClient.CompleteAsync(prompt);
-        if (!string.IsNullOrEmpty(response.Message.Text))
+        var chatCompletion = await chatClient.CompleteAsync(prompt);
+        
+        var response = new Response
         {
-            return new Comment
-            {
-                Content = response.Message.Text,
-                Task = task.TaskId,
-                User = 22
-            };
-        }
+            Content = chatCompletion.Message.Text ?? string.Empty,
+            InputTokenCount = (int) chatCompletion.Usage!.InputTokenCount!,
+            OutputTokenCount = (int) chatCompletion.Usage!.OutputTokenCount!,
+            TotalTokenCount = (int) chatCompletion.Usage!.TotalTokenCount!,
+            UserId = 22,
+        };
+        
+        var insertedResponse = await responseService.CreateResponse(response);
+        response.ResponseId = insertedResponse.ResponseId;
+        var relevantOrderTasks = relevantOrders.Select(o => o.Item2);
 
-        return new Comment { Content = string.Empty };
+        await analyticsService.CreateQueryResponseRating(prompt, response);
+        await analyticsService.CreateResponseRetrievalRating(response, relevantOrderTasks);
+        await analyticsService.CreateTaskRetrievalRating(task, relevantOrders);
+        
+        return response;
     }
 
     private async Task<string> BuildPrompt(Task task, IEnumerable<(double, Order)> orders, string promptName)

@@ -9,4 +9,6 @@ public static class Collections
     public const string Comments = "Comments";
     
     public const string Orders = "Orders";
+    
+    public const string Queries = "Queries";
 }

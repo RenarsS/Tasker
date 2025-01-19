@@ -1,0 +1,137 @@
+﻿@using Tasker.Client.Components.Masterdata
+@using Tasker.Client.Services.Interfaces
+@using Tasker.Domain.Enums
+@using Tasker.Domain.MasterData
+
+@inject ITaskService TaskService;
+@inject NotificationService NotificationService;
+
+
+<RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;">
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenRow JustifyContent="JustifyContent.Center" class="rz-m-5" >
+            <h2>Create task</h2>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Center" class="rz-m-5">
+            <Dropdown MasterDataName="Task type" MasterDataType="MasterDataType.TaskType" ValueChanged="GetTaskType"/>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Center" class="rz-m-5">
+            <Dropdown MasterDataName="Status" MasterDataType="MasterDataType.Status" ValueChanged="GetStatus"/>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Center" class="rz-m-5">
+            <RadzenFormField Text="Due date" Variant="Variant.Outlined" class="rz-m-5">
+                <RadzenDatePicker TValue="DateTime?" @bind-Value="_dueDate" InitialViewDate="DateTime.Now" />
+            </RadzenFormField>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Center" class="rz-m-5">
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                <RadzenTextBox @bind-Value="_title" />
+            </RadzenFormField>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Center" class="rz-m-5">
+            <RadzenFormField Text="Description" Variant="Variant.Outlined">
+                <RadzenTextArea @bind-Value="_description"/>
+            </RadzenFormField>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.SpaceEvenly" class="rz-m-5">
+            <RadzenButton Click="args => DiscardTask()" Text="Discard" ButtonStyle="ButtonStyle.Danger" class="rz-m-5"/>
+            <RadzenButton Click="args => SaveTask()" Text="Save" ButtonStyle="ButtonStyle.Primary" class="rz-m-5"/>
+        </RadzenRow>
+    </RadzenColumn>
+</RadzenStack>
+@code {
+    private MasterData? _status;
+    private MasterData? _taskType;
+    private DateTime? _dueDate;
+    private string? _title;
+    private string? _description;
+
+    private void GetStatus(MasterData? md) => _status = md;
+    private void GetTaskType(MasterData? md) => _taskType = md;
+
+    private List<NotificationMessage> _validationMessageErrors = new();
+
+    private void Validate()
+    {
+        var validationMessage = new NotificationMessage
+        {
+            Severity = NotificationSeverity.Warning, 
+            Summary = "Validation failed", 
+            Detail = string.Empty, 
+            Duration = 4000
+        };
+
+        if (_status is null)
+        {
+            validationMessage.Detail = "Status is mandatory field.";
+            _validationMessageErrors.Add(validationMessage);
+        }
+        
+        if (_taskType is null)
+        {
+            validationMessage.Detail = "Task type is mandatory field.";
+            _validationMessageErrors.Add(validationMessage);
+        }
+
+        if (_dueDate < DateTime.Now)
+        {
+            validationMessage.Detail = "Due date cannot be in the past.";
+            _validationMessageErrors.Add(validationMessage);
+        }
+
+        if (string.IsNullOrEmpty(_title))
+        {
+            validationMessage.Detail = "Title is mandatory field.";
+            _validationMessageErrors.Add(validationMessage);
+        }
+
+        foreach (var validationMessageError in _validationMessageErrors)
+        {
+            NotificationService.Notify(validationMessageError);
+        }
+    }
+    
+    
+    private async Task SaveTask()
+    {
+        Validate();
+        if (_validationMessageErrors.Count > 0)
+        {
+            _validationMessageErrors.Clear();
+            return;
+        }
+
+        var task = new API.Task
+        {
+            Status = _status.Id,
+            TaskType = _taskType.Id,
+            Due = (DateTimeOffset) _dueDate,
+            Title = _title,
+            Description = _description,
+            CreatedAt = DateTime.Now,
+            UpdateAt = DateTimeOffset.Now,
+            CreatedBy = 1,
+        };
+        
+        try
+        {
+            var createdTask = await TaskService.CreateTask(task);
+        }
+        catch (Exception e)
+        {
+            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Task creation failed.", Detail = e.Message, Duration = 10000 });
+        }
+
+        NotificationService.Notify(new NotificationMessage() {Severity = NotificationSeverity.Success, Summary = "Task created successfully.", Duration = 5000 });
+    }
+
+    private void DiscardTask()
+    {
+        _taskType = null;
+        _status = null;
+        _dueDate = DateTime.Now;
+        _title = string.Empty;
+        _description = string.Empty;
+        _validationMessageErrors.Clear();
+    }
+}

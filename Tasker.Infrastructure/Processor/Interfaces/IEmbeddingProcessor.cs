@@ -16,4 +16,6 @@ public interface IEmbeddingProcessor
 
     System.Threading.Tasks.Task ProcessOrder(Task task, IEnumerable<Assignment> assignment,
         IEnumerable<Comment> comments);
+
+    Task<string> ProcessQuery(string prompt, Query query);
 }

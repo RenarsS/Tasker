@@ -15,13 +15,12 @@ public class RetrievalService(
     ICommentService commentService, 
     OrderBuilder orderBuilder) : IRetrievalService
 {
-    public async Task<List<(double, Order)>> GetRelevantOrders(Task task)
+    public async Task<List<(double, Order)>> GetRelevantOrders(Task task,  int relevantTaskCount = 5)
     {
-        var limit = configuration.GetValue<int>("RetrievalSettings:MaxLimit");
         var relevanceScore = configuration.GetValue<double>("RetrievalSettings:RelevanceScore");
         var orders = new List<(double, Order)>();
         var taskMemoryRecord = await embeddingClient.GetEmbedding(Collections.Tasks, task.VectorId, true);
-        var relevantTaskEmbeddings = embeddingClient.GetNearestMatches(Collections.Tasks, taskMemoryRecord.Embedding, limit, relevanceScore).ToBlockingEnumerable();
+        var relevantTaskEmbeddings = embeddingClient.GetNearestMatches(Collections.Tasks, taskMemoryRecord.Embedding, relevantTaskCount, relevanceScore).ToBlockingEnumerable();
         foreach (var (memoryRecord, similarity) in relevantTaskEmbeddings)
         {
             var order = await RetrieveOrderByVectorId(memoryRecord.Key);

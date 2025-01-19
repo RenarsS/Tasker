@@ -1,9 +1,11 @@
-﻿using Tasker.Domain.DTO;
+﻿using Microsoft.Extensions.AI;
+using Tasker.Domain.DTO;
 using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.API.Services.Interfaces;
 
 public interface IRecommendationService
 {
-    Task<Comment> GenerateRecommendationComment(Task task);
+    Task<Response> GenerateRecommendationResponse(Task task, int relevantTaskCount);
+    
 }

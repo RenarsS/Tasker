@@ -1,0 +1,37 @@
+﻿@using Tasker.Client.Services.Interfaces
+@using Tasker.Domain.Enums
+@using Tasker.Domain.MasterData
+@inject IMasterDataService MasterDataService
+
+<RadzenFormField Text="@MasterDataName" Variant="Variant.Outlined">
+    <RadzenDropDown AllowClear="true" @bind-Value=_value AllowVirtualization="true" Name="DropDownVirtualization"
+                    AllowFiltering="true" Data=@masterData TextProperty="@nameof(MasterData.Name)" ValueProperty="@nameof(MasterData.Id)" Style="width: 100%; max-width: 400px;" Change="@ChangeValue" />
+</RadzenFormField>
+
+@code {
+    private int? _value;
+    private IEnumerable<MasterData> masterData;
+    
+    [Parameter]
+    public string MasterDataName { get; set; }
+
+    [Parameter]
+    public MasterDataType MasterDataType { get; set; }
+    
+    [Parameter]
+    public EventCallback<MasterData?> ValueChanged { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        masterData = await MasterDataService.GetMasterData(MasterDataType);
+    }
+
+    private void ChangeValue()
+    {
+        var chosenValue = masterData.FirstOrDefault(m => m.Id == _value);
+        ValueChanged.InvokeAsync(chosenValue);
+    }
+
+}

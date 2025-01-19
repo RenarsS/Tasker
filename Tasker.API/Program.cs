@@ -1,4 +1,5 @@
 using Carter;
+using MassTransit;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.Chroma;
@@ -7,8 +8,10 @@ using Microsoft.SemanticKernel.Memory;
 using OpenAI;
 using Quartz;
 using StackExchange.Redis;
+using Tasker.API.Consumers;
 using Tasker.API.Services;
 using Tasker.API.Services.Interfaces;
+using Tasker.Domain.Events;
 using Tasker.Infrastructure.Builders;
 using Tasker.Infrastructure.Client;
 using Tasker.Infrastructure.Client.Interfaces;
@@ -54,6 +57,8 @@ builder.Services.AddScoped<IAssignmentRepository,AssignmentRepository>();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 builder.Services.AddScoped<IStatusRepository,StatusRepository>();
 builder.Services.AddScoped<ITaskTypeRepository,TaskTypeRepository>();
+builder.Services.AddScoped<IQueryRepository,QueryRepository>();
+builder.Services.AddScoped<IResponseRepository, ResponseRepository>();
 
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
@@ -61,9 +66,12 @@ builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<ITaskTypeService, TaskTypeService>();
+builder.Services.AddScoped<IQueryService, QueryService>();
+builder.Services.AddScoped<IResponseService, ResponseService>();
 builder.Services.AddScoped<IDataImportService, DataImportService>();
 builder.Services.AddScoped<IRetrievalService, RetrievalService>();
 builder.Services.AddScoped<IPromptService, PromptService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 builder.Services.AddScoped<IVectorSeedTask, VectorSeedTask>();
@@ -74,6 +82,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApiDocument();
 builder.Services.AddCarter();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.SetKebabCaseEndpointNameFormatter();
+    
+    x.AddConsumer<NewTaskCreatedConsumer>();
+    
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMqSettings:Host"], "/", h =>
+        {
+            h.Username(builder.Configuration["RabbitMqSettings:Username"]!);
+            h.Password(builder.Configuration["RabbitMqSettings:Password"]!);
+        });
+        
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 var app = builder.Build();
 

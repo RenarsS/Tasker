@@ -1,4 +1,5 @@
-﻿using Tasker.Domain.Import;
+﻿using Tasker.Domain.DTO.Analytics;
+using Tasker.Domain.Import;
 using Task = Tasker.Domain.DTO.Task;
 
 namespace Tasker.API.Services.Interfaces;
@@ -20,4 +21,6 @@ public interface ITaskService
     Task<Task> GetTaskByVectorId (string vectorId);
 
     Task<bool> EmbedTasks();
+
+    System.Threading.Tasks.Task CreateTaskRetrievalRating(TaskRetrievalRating taskRetrievalRating);
 }

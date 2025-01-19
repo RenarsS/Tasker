@@ -1,0 +1,22 @@
+﻿@page "/experiment"
+@using Tasker.Domain.MasterData
+@using Tasker.Client.Components.Tasks
+<h3>Experiment</h3>
+
+<CreateTaskDialog/>
+
+@code {
+    private MasterData? _status;
+    private MasterData? _taskType;
+
+    private void GetStatus(MasterData md)
+    {
+        _status = md;
+    }
+
+    private void GetTaskType(MasterData md)
+    {
+        _taskType = md;
+    }
+
+}

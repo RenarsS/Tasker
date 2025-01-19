@@ -1,4 +1,9 @@
-﻿using Tasker.API.Services.Interfaces;
+﻿using System.ComponentModel.Design;
+using MassTransit;
+using Tasker.API.Services.Interfaces;
+using Tasker.Domain.DTO;
+using Tasker.Domain.DTO.Analytics;
+using Tasker.Domain.Events;
 using Tasker.Domain.Import;
 using Tasker.Domain.Settings;
 using Tasker.Infrastructure.Processor.Interfaces;
@@ -13,10 +18,12 @@ public class TaskService(
     ITaskRepository taskRepository, 
     IAssignmentService assignmentService, 
     ICommentService  commentService,
-    IEmbeddingProcessor embeddingProcessor) : ITaskService
+    IEmbeddingProcessor embeddingProcessor,
+    IPublishEndpoint publishEndpoint) : ITaskService
 {
     private readonly EmbeddingSettings _embeddingSettings = configuration.GetSection("EmbeddingSettings").Get<EmbeddingSettings>()!;
     private readonly RecommendationSettings _recommendationSettings = configuration.GetSection("RecommendationSettings").Get<RecommendationSettings>()!;
+    
     public async Task<IEnumerable<Task>> GetAllTasks()
     {
         var tasks = await taskRepository.GetTasks();
@@ -45,12 +52,16 @@ public class TaskService(
         {
             await taskRepository.LinkToVector(taskId, taskVectorId);
         }
-        /*
+        
         if (_recommendationSettings.IsEnabled)
         {
-            var recommendationComment = await recommendationService.GenerateRecommendationComment(task);
-            await commentService.CreateComment(recommendationComment);
-        }*/
+            var newTaskCreated = new NewTaskCreated
+            {
+                RelevantTaskCount = [1, 4, 7, 10, 13],
+                Task = task
+            };
+            await publishEndpoint.Publish(newTaskCreated);
+        }
         
         if (taskId == 0)
         {
@@ -112,5 +123,10 @@ public class TaskService(
         }
 
         return true;
+    }
+
+    public async System.Threading.Tasks.Task CreateTaskRetrievalRating(TaskRetrievalRating taskRetrievalRating)
+    {
+        await taskRepository.InsertTaskRetrievalRating(taskRetrievalRating);
     }
 }

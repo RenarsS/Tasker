@@ -5,5 +5,5 @@ namespace Tasker.API.Services.Interfaces;
 
 public interface IRetrievalService
 {
-    Task<List<(double, Order)>> GetRelevantOrders(Task task);
+    Task<List<(double, Order)>> GetRelevantOrders(Task task, int relevantTaskCount);
 }

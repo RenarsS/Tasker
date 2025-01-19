@@ -8,7 +8,6 @@ namespace Tasker.API.Modules;
 
 public class RecommendationModule : CarterModule
 {
-    
     public RecommendationModule() : base("/api")
     {
         IncludeInOpenApi();
@@ -16,6 +15,6 @@ public class RecommendationModule : CarterModule
     
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost(RecommendationRoutes.Base, async (Task task, IRecommendationService recommendationService) => await recommendationService.GenerateRecommendationComment(task));
+        app.MapPost(RecommendationRoutes.Base, async (Task task, int relevantTaskCount, IRecommendationService recommendationService) => await recommendationService.GenerateRecommendationResponse(task, relevantTaskCount));
     }
 }
