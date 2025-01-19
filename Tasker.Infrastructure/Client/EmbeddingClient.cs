@@ -49,4 +49,8 @@ public abstract class EmbeddingClient(IMemoryStore memoryStore) : IEmbeddingClie
 
     public async Task<MemoryRecord?> GetEmbedding(string collectionName, string key, bool withEmbeddings = false)
         => await memoryStore.GetAsync(collectionName, key, withEmbeddings);
+
+    public IAsyncEnumerable<MemoryRecord> GetEmbeddingBatches(string collectionName, string[] keys, bool withEmbeddings = false)
+        => memoryStore.GetBatchAsync(collectionName, keys, withEmbeddings);
+    
 }

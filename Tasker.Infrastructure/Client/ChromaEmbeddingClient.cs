@@ -50,4 +50,9 @@ public class ChromaEmbeddingClient(IConfiguration configuration, ILoggerFactory 
     {
         throw new NotImplementedException();
     }
+
+    public IAsyncEnumerable<MemoryRecord> GetEmbeddingBatches(string collectionName, string[] keys, bool withEmbeddings = false)
+    {
+        throw new NotImplementedException();
+    }
 }

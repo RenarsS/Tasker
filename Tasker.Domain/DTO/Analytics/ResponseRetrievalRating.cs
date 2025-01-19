@@ -1,6 +1,6 @@
 ﻿namespace Tasker.Domain.DTO.Analytics;
 
-public class ResponseRetrievalRating
+public class ResponseRetrievalRating : Rating
 {
     public int ResponseId { get; set; }
 

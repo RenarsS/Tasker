@@ -10,4 +10,8 @@ public interface IAnalyticsService
     System.Threading.Tasks.Task CreateQueryResponseRating(string prompt, Response response);
 
     System.Threading.Tasks.Task CreateResponseRetrievalRating(Response response, IEnumerable<Order> retrievedTasks);
+
+    System.Threading.Tasks.Task RateQueryResponses();
+
+    System.Threading.Tasks.Task RateResponseRetrievals();
 }

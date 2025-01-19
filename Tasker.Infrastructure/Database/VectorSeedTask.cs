@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Tasker.Infrastructure.Client;
 using Tasker.Infrastructure.Client.Interfaces;
 using Tasker.Infrastructure.Database.Interface;
 

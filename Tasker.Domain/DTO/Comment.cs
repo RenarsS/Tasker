@@ -11,4 +11,6 @@ public record Comment
     public required string Content { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public string? VectorId { get; set; }
 };

@@ -40,7 +40,7 @@ public class RecommendationService(
         await analyticsService.CreateResponseRetrievalRating(response, relevantOrderTasks);
         await analyticsService.CreateTaskRetrievalRating(task, relevantOrders);
         
-        return response;
+         return response;
     }
 
     private async Task<string> BuildPrompt(Task task, IEnumerable<(double, Order)> orders, string promptName)

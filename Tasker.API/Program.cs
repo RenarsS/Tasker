@@ -8,6 +8,7 @@ using Microsoft.SemanticKernel.Memory;
 using OpenAI;
 using Quartz;
 using StackExchange.Redis;
+using Tasker.API.BackgroundTasks;
 using Tasker.API.Consumers;
 using Tasker.API.Services;
 using Tasker.API.Services.Interfaces;
@@ -77,6 +78,8 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IVectorSeedTask, VectorSeedTask>();
 
 builder.Services.Configure<RouteOptions>(options => options.SetParameterPolicy<RegexInlineRouteConstraint>("regex"));
+
+builder.Services.AddHostedService<DataRatingTask>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

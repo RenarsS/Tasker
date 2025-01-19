@@ -16,4 +16,6 @@ public interface IEmbeddingClient
     IAsyncEnumerable<ValueTuple<MemoryRecord, double>> GetNearestMatches(string collectionName, ReadOnlyMemory<float> embedding, int limit, double minRelevanceScore = 0, bool withEmbeddings = false);
     
     Task<MemoryRecord?> GetEmbedding(string collectionName, string key, bool withEmbeddings = false);
+    
+    IAsyncEnumerable<MemoryRecord> GetEmbeddingBatches(string collectionName, string[] keys, bool withEmbeddings = false);
 }
