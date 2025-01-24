@@ -20,11 +20,12 @@ public class AnalyticsService(
     {
         foreach (var retrievedTask in retrievedTasks)
         {
+            var adjustedSimilarity = retrievedTask.Item1;
             var taskRetrievalRanking = new TaskRetrievalRating()
             {
                 TaskId = task.TaskId,
                 RetrievalTaskId = retrievedTask.Item2.TaskId,
-                Rating = (float) retrievedTask.Item1
+                Rating = (float) adjustedSimilarity,
             };
 
             await taskService.CreateTaskRetrievalRating(taskRetrievalRanking);
@@ -33,7 +34,7 @@ public class AnalyticsService(
     
     public async System.Threading.Tasks.Task CreateQueryResponseRating(string prompt, Response response)
     {
-        var query = new Query { ResponseId = response.ResponseId};
+        var query = new Query { ResponseId = response.ResponseId };
         var insertedQuery = await queryService.CreateQuery(prompt, query);
         var queryResponseRating = new QueryResponseRating
         {
@@ -101,7 +102,7 @@ public class AnalyticsService(
             var task = await taskService.GetTaskById(responseRetrievalRating.TaskId);
             
             var responseEmbedding = await embeddingClient.GetEmbedding(Collections.Comments, comment.VectorId!, true);
-            var taskEmbedding = await embeddingClient.GetEmbedding(Collections.Tasks, task.VectorId!, true);
+            var taskEmbedding = await embeddingClient.GetEmbedding(Collections.Orders, task.OrderVectorId!, true);
             if (responseEmbedding == null && taskEmbedding == null)
             {
                 continue;

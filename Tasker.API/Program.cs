@@ -1,8 +1,10 @@
+using System.Collections.ObjectModel;
 using Carter;
 using MassTransit;
 using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.AI;
-using Microsoft.SemanticKernel.Connectors.Chroma;
+using Microsoft.SemanticKernel.Connectors.AzureCosmosDBNoSQL;
 using Microsoft.SemanticKernel.Connectors.Weaviate;
 using Microsoft.SemanticKernel.Memory;
 using OpenAI;
@@ -12,7 +14,6 @@ using Tasker.API.BackgroundTasks;
 using Tasker.API.Consumers;
 using Tasker.API.Services;
 using Tasker.API.Services.Interfaces;
-using Tasker.Domain.Events;
 using Tasker.Infrastructure.Builders;
 using Tasker.Infrastructure.Client;
 using Tasker.Infrastructure.Client.Interfaces;
@@ -23,6 +24,7 @@ using Tasker.Infrastructure.Processor;
 using Tasker.Infrastructure.Processor.Interfaces;
 using Tasker.Infrastructure.Repositories;
 using Tasker.Infrastructure.Repositories.Interfaces;
+using Embedding = Microsoft.Azure.Cosmos.Embedding;
 
 
 var builder = WebApplication.CreateSlimBuilder(args);
@@ -31,7 +33,6 @@ builder.Logging.AddConsole();
 builder.Services.AddScoped<OracleDbService>(provider =>
     new OracleDbService(builder.Configuration.GetConnectionString("TaskerDb")));
 
-builder.Services.AddScoped<IChromaClient, ChromaClient>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration["Redis:Host"]!));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton(new OpenAIClient(builder.Configuration["OpenAI:ApiKey"]));
@@ -47,8 +48,23 @@ builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete
 
 builder.Services.AddAutoMapper(typeof(TaskerProfile).Assembly);
 
-builder.Services.AddScoped<IMemoryStore, WeaviateMemoryStore>((services) => new WeaviateMemoryStore(builder.Configuration["WeaviateDb:Endpoint"]));
-builder.Services.AddScoped<IEmbeddingClient, WeaviateEmbeddingClient>();
+builder.Services.AddScoped<IMemoryStore, AzureCosmosDBNoSQLMemoryStore>(
+    (services) => new AzureCosmosDBNoSQLMemoryStore(
+        builder.Configuration["ConnectionStrings:AzureTaskerDb:Endpoint"],
+        builder.Configuration["ConnectionStrings:AzureTaskerDb:Database"], 
+        new VectorEmbeddingPolicy(new Collection<Embedding>
+        {
+            new Embedding
+            {
+                DataType = VectorDataType.Float32,
+                Dimensions = 1536,
+                DistanceFunction = DistanceFunction.Cosine,
+                Path="/embedding"
+            }
+        }),
+        new IndexingPolicy()));
+
+builder.Services.AddScoped<IEmbeddingClient, AzureEmbeddingClient>();
 builder.Services.AddScoped<IEmbeddingProcessor, EmbeddingProcessor>();
 builder.Services.AddScoped<OrderBuilder>();
 
@@ -109,7 +125,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var vectorSeedTask = scope.ServiceProvider.GetRequiredService<IVectorSeedTask>();
-    await vectorSeedTask.Execute();
+    //await vectorSeedTask.Execute();
 }
 
 if (app.Environment.IsDevelopment())

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.AI;
+﻿/*
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Connectors.Chroma;
@@ -12,7 +13,7 @@ public class ChromaEmbeddingClient(IConfiguration configuration, ILoggerFactory 
 {
     private readonly IChromaClient _chromaClient = new ChromaClient(configuration["ChromaDb:ConnectionString"] ?? string.Empty, loggerFactory);
 
-    public IAsyncEnumerable<string> GetCollections()
+    public IAsyncEnumerable<string> GetEmbeddingCollections()
         => _chromaClient.ListCollectionsAsync();
 
     public async Task CreateCollection(string collectionName)
@@ -55,4 +56,10 @@ public class ChromaEmbeddingClient(IConfiguration configuration, ILoggerFactory 
     {
         throw new NotImplementedException();
     }
+
+    public Task DeleteEmbedding(string collectionName, string key)
+    {
+        throw new NotImplementedException();
+    }
 }
+*/

@@ -19,6 +19,10 @@ public interface ITaskRepository : IRepository
     Task<Task> GetTaskByVectorId(string vectorId);
 
     Task<IEnumerable<Task>> GetTasksNotEmbedded();
+    
+    Task<IEnumerable<Task>> GetOrdersNotEmbedded();
 
     System.Threading.Tasks.Task InsertTaskRetrievalRating(TaskRetrievalRating taskRetrievalRating);
+    
+    System.Threading.Tasks.Task LinkToOrderVector(int taskId, string vectorId);
 }

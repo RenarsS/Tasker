@@ -44,4 +44,24 @@ public class CommentService(ICommentRepository commentRepository, IEmbeddingProc
     {
         await commentRepository.DeleteComment(id);
     }
+
+    public async Task<bool> EmbedComments()
+    {
+        var comments = await commentRepository.GetCommentsNotEmbedded();
+        try
+        {
+            foreach (var comment in comments)
+            {
+                var vectorId = await embeddingProcessor.ProcessComment(comment);
+                await commentRepository.LinkToVector(comment.CommentId, vectorId);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+
+        return true;
+    }
 }

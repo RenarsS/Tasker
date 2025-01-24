@@ -11,6 +11,20 @@ namespace Tasker.Infrastructure.Repositories;
 
 public class CommentRepository(OracleDbService oracleDbService) : ICommentRepository, IRepository
 {
+    private const string sql = @"
+            SELECT
+                c.comment_id AS CommentId,
+                c.task_id AS ""Task"",
+                c.user_id AS ""User"",
+                c.content AS Content,
+                c.created_at AS CreatedAt,
+                c.vector_id AS VectorId
+            FROM
+                tasker.comments c
+            WHERE
+                1=1
+";
+    
     public async Task<IEnumerable<Comment>> GetComments()
     {
         using var connection = oracleDbService.CreateConnection();
@@ -71,8 +85,15 @@ public class CommentRepository(OracleDbService oracleDbService) : ICommentReposi
         
         await connection.ExecuteAsync($"{Packages.CommentsCore}.delete_comment", parameters, commandType: CommandType.StoredProcedure);
     }
-    
-    public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)
+
+    public async  Task<IEnumerable<Comment>> GetCommentsNotEmbedded()
+    {
+        var connection = oracleDbService.CreateConnection();
+        const string query = sql + "AND vector_id IS NULL";
+        return await connection.QueryAsync<Comment>(query);
+    }
+
+    public async Task LinkToVector(int id, string vectorId)
     {
         using var connection = oracleDbService.CreateConnection();
         var parameters = new OracleDynamicParameters();

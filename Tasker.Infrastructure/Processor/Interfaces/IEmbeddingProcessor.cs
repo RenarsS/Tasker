@@ -14,8 +14,7 @@ public interface IEmbeddingProcessor
 
     Task<string> ProcessComment(Comment comment);
 
-    System.Threading.Tasks.Task ProcessOrder(Task task, IEnumerable<Assignment> assignment,
-        IEnumerable<Comment> comments);
+    Task<string> ProcessOrder(Task task, IEnumerable<Assignment>? assignment = null, IEnumerable<Comment>? comments = null);
 
     Task<string> ProcessQuery(string prompt, Query query);
 }

@@ -105,6 +105,12 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
         var query = sql + "AND t.vector_id IS NULL";
         return await connection.QueryAsync<Task>(query);
     }
+    public async Task<IEnumerable<Task>> GetOrdersNotEmbedded()
+    {
+        var connection = oracleDbService.CreateConnection();
+        var query = sql + "AND t.order_vector_id IS NULL";
+        return await connection.QueryAsync<Task>(query);
+    }
 
     public async System.Threading.Tasks.Task InsertTaskRetrievalRating(TaskRetrievalRating taskRetrievalRating)
     {
@@ -116,6 +122,16 @@ public class TaskRepository(OracleDbService oracleDbService) : ITaskRepository
         parameters.Add("o_task_id", dbType: OracleMappingType.Int32, direction: ParameterDirection.Output);
         
         await connection.ExecuteAsync($"{Packages.TasksCore}.insert_task_retrieval_rating", parameters, commandType: CommandType.StoredProcedure);
+    }
+
+    public async System.Threading.Tasks.Task LinkToOrderVector(int taskId, string vectorId)
+    {
+        using var connection = oracleDbService.CreateConnection();
+        var parameters = new OracleDynamicParameters();
+        parameters.Add("i_task_id", dbType: OracleMappingType.Int32, value: taskId, direction: ParameterDirection.Input); 
+        parameters.Add("i_order_vector_id", dbType: OracleMappingType.NVarchar2, value: vectorId, direction: ParameterDirection.Input); 
+        
+        await connection.ExecuteAsync($"{Packages.TasksCore}.link_to_order_vector", parameters, commandType: CommandType.StoredProcedure);
     }
 
     public async System.Threading.Tasks.Task LinkToVector(int id, string vectorId)

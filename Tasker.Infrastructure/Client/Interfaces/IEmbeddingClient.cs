@@ -18,4 +18,6 @@ public interface IEmbeddingClient
     Task<MemoryRecord?> GetEmbedding(string collectionName, string key, bool withEmbeddings = false);
     
     IAsyncEnumerable<MemoryRecord> GetEmbeddingBatches(string collectionName, string[] keys, bool withEmbeddings = false);
+    
+    Task DeleteEmbedding(string collectionName, string key);
 }

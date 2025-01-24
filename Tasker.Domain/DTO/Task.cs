@@ -21,4 +21,6 @@ public class Task
     public DateTime Due { get; set; }
 
     public string? VectorId { get; set; }
+
+    public string? OrderVectorId { get; set; }
 };

@@ -20,5 +20,6 @@ public class CommentModule : CarterModule
         app.MapPost(CommentRoutes.Base, async (Comment comment, ICommentService commentService) => await commentService.CreateComment(comment));
         app.MapPut(CommentRoutes.Base, async (Comment comment, ICommentService commentService) => await commentService.UpdateComment(comment));
         app.MapDelete(CommentRoutes.ById, async (int id, ICommentService commentService) => await commentService.DeleteTask(id));
+        app.MapPost(CommentRoutes.Embed, async (ICommentService commentService) => await commentService.EmbedComments());
     }
 }

@@ -52,5 +52,7 @@ public abstract class EmbeddingClient(IMemoryStore memoryStore) : IEmbeddingClie
 
     public IAsyncEnumerable<MemoryRecord> GetEmbeddingBatches(string collectionName, string[] keys, bool withEmbeddings = false)
         => memoryStore.GetBatchAsync(collectionName, keys, withEmbeddings);
-    
+
+    public async Task DeleteEmbedding(string collectionName, string key)
+        => await memoryStore.RemoveAsync(collectionName, key);
 }

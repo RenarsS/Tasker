@@ -16,4 +16,6 @@ public interface ICommentService
     public Task<Comment> UpdateComment(Comment comment);
     
     public Task DeleteTask(int id);
+
+    Task<bool> EmbedComments();
 }

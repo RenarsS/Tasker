@@ -8,7 +8,7 @@ public class DataRatingTask(IServiceProvider serviceProvider) : IHostedService
     {
         using var scope = serviceProvider.CreateScope();
         var analyticsService = scope.ServiceProvider.GetService<IAnalyticsService>();
-            
+        
         await  analyticsService?.RateQueryResponses()!;
         await analyticsService?.RateResponseRetrievals()!;
     }

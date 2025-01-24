@@ -7,4 +7,6 @@ public static class CommentRoutes
     public const string ById = Base + "/{id}";
 
     public const string ByTask = TaskRoutes.ById + Base;
+    
+    public const string Embed = Base + "-embed";
 }

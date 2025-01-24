@@ -1,4 +1,6 @@
-﻿using Tasker.API.Services.Interfaces;
+﻿using Microsoft.SemanticKernel.Memory;
+using Newtonsoft.Json;
+using Tasker.API.Services.Interfaces;
 using Tasker.Domain.Constants.Embeddings;
 using Tasker.Domain.DTO;
 using Tasker.Infrastructure.Builders;
@@ -23,7 +25,7 @@ public class RetrievalService(
         var relevantTaskEmbeddings = embeddingClient.GetNearestMatches(Collections.Tasks, taskMemoryRecord.Embedding, relevantTaskCount, relevanceScore).ToBlockingEnumerable();
         foreach (var (memoryRecord, similarity) in relevantTaskEmbeddings)
         {
-            var order = await RetrieveOrderByVectorId(memoryRecord.Key);
+            var order = await RetrieveOrderByVectorId(memoryRecord);
             var orderPair = (similarity, order);
             orders.Add((orderPair.Item1, orderPair.Item2));
         }
@@ -31,14 +33,22 @@ public class RetrievalService(
         return orders;
     }
 
-    private async Task<Order> RetrieveOrderByVectorId(string vectorId)
+    private async Task<Order> RetrieveOrderByVectorId(MemoryRecord memoryRecord)
     {
-        var task =  await taskService.GetTaskByVectorId(vectorId);
-        var assignments = await assignmentService.GetAssignmentsByTaskId(task.TaskId);
-        var comments = await commentService.GetCommentsByTaskId(task.TaskId);
-        orderBuilder.SetTask(task);
-        orderBuilder.SetAssignments(assignments);
-        orderBuilder.SetComments(comments);
-        return orderBuilder.Build();
+        try
+        {
+            var task = await taskService.GetTaskByVectorId(memoryRecord.Key);
+            var assignments = await assignmentService.GetAssignmentsByTaskId(task.TaskId);
+            var comments = await commentService.GetCommentsByTaskId(task.TaskId);
+            orderBuilder.SetTask(task);
+            orderBuilder.SetAssignments(assignments);
+            orderBuilder.SetComments(comments);
+            return orderBuilder.Build();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

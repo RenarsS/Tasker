@@ -50,16 +50,25 @@ public class EmbeddingProcessor(
         return vectorId?.First()!;
     }
     
-    public async System.Threading.Tasks.Task ProcessOrder(Task task, IEnumerable<Assignment> assignment, IEnumerable<Comment> comments)
+    public async Task<string> ProcessOrder(Task task, IEnumerable<Assignment>? assignment = null, IEnumerable<Comment>? comments = null)
     {
         orderBuilder.SetTask(task);
-        orderBuilder.SetAssignments(assignment);
-        orderBuilder.SetComments(comments);
+        if (assignment != null)
+        {
+            orderBuilder.SetAssignments(assignment);
+        }
+
+        if (comments != null)
+        {
+            orderBuilder.SetComments(comments);
+        }
+        
         var order = orderBuilder.Build();
         var orderMeta = order.GetMetadata();
         var orderEmbedding = await Process(order);
-        await embeddingClient.UpsertEmbeddings(Collections.Orders, orderEmbedding, orderMeta);
+        var vectorId = await embeddingClient.UpsertEmbeddings(Collections.Orders, orderEmbedding, orderMeta);
         orderBuilder.Reset();
+        return vectorId?.First()!;
     }
 
     public async Task<string> ProcessQuery(string prompt, Query query)

@@ -40,24 +40,32 @@ public class TaskService(
         var taskId = await taskRepository.InsertTask(task);
         
         string taskVectorId = String.Empty;
+        string taskOrderVectorId = String.Empty;
         if (_embeddingSettings.IsEnabled)
         {
             taskVectorId = await embeddingProcessor.ProcessTask(task);
+            taskOrderVectorId = await embeddingProcessor.ProcessOrder(task);
         }
         
         task.TaskId = taskId;
-        task.VectorId = taskVectorId;   
+        task.VectorId = taskVectorId;
+        task.OrderVectorId = taskOrderVectorId;
 
         if (!string.IsNullOrEmpty(taskVectorId))
         {
             await taskRepository.LinkToVector(taskId, taskVectorId);
+        }
+
+        if (!string.IsNullOrEmpty(taskOrderVectorId))
+        {
+            await taskRepository.LinkToOrderVector(taskId, taskOrderVectorId);
         }
         
         if (_recommendationSettings.IsEnabled)
         {
             var newTaskCreated = new NewTaskCreated
             {
-                RelevantTaskCount = [1, 4, 7, 10, 13],
+                RelevantTaskCount = [1, 4, 7, 10, 12],
                 Task = task
             };
             await publishEndpoint.Publish(newTaskCreated);
@@ -108,12 +116,19 @@ public class TaskService(
     public async Task<bool> EmbedTasks()
     {
         var tasks = await taskRepository.GetTasksNotEmbedded();
+        var orders =  await taskRepository.GetOrdersNotEmbedded();
         try
         {
             foreach (var task in tasks)
             {
                 var vectorId = await embeddingProcessor.ProcessTask(task);
                 await taskRepository.LinkToVector(task.TaskId, vectorId);
+            }
+
+            foreach (var order in orders)
+            {
+                var vectorId = await embeddingProcessor.ProcessOrder(order);
+                await taskRepository.LinkToOrderVector(order.TaskId, vectorId);
             }
         }
         catch (Exception e)

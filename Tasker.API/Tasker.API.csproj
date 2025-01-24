@@ -24,6 +24,7 @@
       <PackageReference Include="Carter" Version="8.2.1" />
       <PackageReference Include="MassTransit" Version="8.3.4" />
       <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureCosmosDBNoSQL" Version="1.33.0-preview" />
       <PackageReference Include="NRedisStack" Version="0.13.1" />
       <PackageReference Include="NSwag.AspNetCore" Version="14.1.0" />
       <PackageReference Include="Quartz" Version="3.13.1" />

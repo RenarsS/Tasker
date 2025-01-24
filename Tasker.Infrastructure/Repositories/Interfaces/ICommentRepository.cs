@@ -16,4 +16,6 @@ public interface ICommentRepository : IRepository
     Task<Comment> UpdateComment(Comment comment);
     
     Task DeleteComment(int id);
+    
+    Task<IEnumerable<Comment>> GetCommentsNotEmbedded();
 }
